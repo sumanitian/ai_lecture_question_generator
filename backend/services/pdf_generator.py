@@ -37,29 +37,30 @@ def generate_quiz_pdf(quiz_id):
             Question.id == qq.question_id
         ).first()
 
-        if question:
+        if question is None:
+            continue
 
-            # Clean unwanted characters
-            clean_text = question.question_text.replace("\n", " ").replace("\r", " ")
+        # Clean unwanted characters and newlines
+        clean_text = question.question_text.replace("\n", " ").replace("\r", " ")
 
-            text = f"Q{question_number}. {clean_text}"
+        text = f"Q{question_number}. {clean_text}"
 
-            # Wrap long lines
-            max_length = 90
-            lines = [text[i:i + max_length] for i in range(0, len(text), max_length)]
+        # Wrap long lines
+        max_length = 90
+        lines = [text[i:i + max_length] for i in range(0, len(text), max_length)]
 
-            for line in lines:
+        for line in lines:
 
-                if y < 100:
-                    c.showPage()
-                    c.setFont("Helvetica", 12)
-                    y = 750
+            if y < 100:
+                c.showPage()
+                c.setFont("Helvetica", 12)
+                y = 750
 
-                c.drawString(50, y, line)
-                y -= 20
+            c.drawString(50, y, line)
+            y -= 20
 
-            y -= 10
-            question_number += 1
+        y -= 10
+        question_number += 1
 
     c.save()
 

@@ -37,7 +37,8 @@ async def upload_lecture(file: UploadFile = File(...)):
         db.add(question_record)
 
     db.commit()
-
+    print("Extracted text preview:")
+    print(lecture_text[:500])
     return {
         "message": "File processed and questions stored",
         "questions_generated": len(questions)

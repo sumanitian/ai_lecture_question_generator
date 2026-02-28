@@ -1,14 +1,15 @@
 from pypdf import PdfReader
 
 def extract_text_from_pdf(file_path):
-    
+
     reader = PdfReader(file_path)
 
-    full_text = ""
+    text = ""
 
     for page in reader.pages:
-        text = page.extract_text()
-        if text:
-            full_text += text + "\n"
+        page_text = page.extract_text()
 
-        return full_text
+        if page_text:
+            text += page_text + "\n"
+
+    return text

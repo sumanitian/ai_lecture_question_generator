@@ -1,37 +1,46 @@
 import random
+import re
+
+def clean_text(text):
+
+    text = text.replace("\n", " ")
+    text = text.replace("•", "")
+    text = re.sub(r'\s+', ' ', text)
+
+    return text
+
 
 def generate_questions(text):
 
-    sentences = text.split('.')
+    text = clean_text(text)
+
+    sentences = text.split(".")
 
     questions = []
-    
-    for sentence in sentences[:5]:
+
+    for sentence in sentences:
 
         sentence = sentence.strip()
 
-        if len(sentence) > 20:
+        if len(sentence) > 40:
 
-            # Short answer question
-            short_question = {
-                "question": f"What is mean by: {sentence}?",
+            short_q = {
+                "question": f"Explain the following concept: {sentence}?",
                 "type": "Short Answer",
-                "difficulty": random.choice(["Easy", "Medium", "Hard"])
+                "difficulty": random.choice(["Easy","Medium","Hard"])
             }
-            questions.append(short_question)
 
-            # MCQ question
-            mcq_question = {
-                "question": f"What does the following statement describe?\n{sentence}",
+            questions.append(short_q)
+
+            mcq_q = {
+                "question": f"Which concept is described below?\n{sentence}",
                 "type": "MCQ",
-                "options": [
-                    sentence,
-                    "An unrelated concept",
-                    "A random statement",
-                    "None of the above"
-                ],
-                "answer": sentence
+                "difficulty": "Medium"
             }
-            questions.append(mcq_question)
-            
+
+            questions.append(mcq_q)
+
+        if len(questions) >= 10:
+            break
+
     return questions
