@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from routes.upload import router as upload_router
 from routes.questions import router as question_router
+from routes.quiz import router as quiz_router
 
 from database import engine
 from models import Base
@@ -11,6 +12,7 @@ app = FastAPI()
 
 app.include_router(upload_router)
 app.include_router(question_router)
+app.include_router(quiz_router)
 
 @app.get("/")
 def home():
