@@ -1,6 +1,7 @@
 from fastapi import APIRouter, UploadFile, File
 import os
 from services.pdf_processor import extract_text_from_pdf
+from services.question_generator import generate_questions
 
 router = APIRouter()
 
@@ -17,9 +18,10 @@ async def upload_lecture(file: UploadFile = File(...)):
 
     # Extract text from pdf
     lecture_text = extract_text_from_pdf(file_path)
+
+    questions = generate_questions(lecture_text)
     
     return {
-        "message" : "File uploaded successfully",
-        "file": file.filename,
-        "text_preview": lecture_text[:500]
+        "message" : "File processed successfully",
+        "generated_questions": questions
     }
