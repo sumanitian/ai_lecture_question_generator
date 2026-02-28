@@ -1,0 +1,22 @@
+# Environment variables
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+ailecture/
+venv/
+env/
+
+# Database
+*.db
+
+# Uploaded documents
+documents/
+
+# OS files
+.DS_Store
+Thumbs.db

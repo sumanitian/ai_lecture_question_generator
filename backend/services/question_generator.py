@@ -1,46 +1,74 @@
-import random
-import re
+import json
+from groq import Groq
+import os
+from dotenv import load_dotenv
 
-def clean_text(text):
+load_dotenv()
 
-    text = text.replace("\n", " ")
-    text = text.replace("•", "")
-    text = re.sub(r'\s+', ' ', text)
-
-    return text
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 
 def generate_questions(text):
 
-    text = clean_text(text)
+    prompt = f"""
+You are an exam generator.
 
-    sentences = text.split(".")
+From the lecture content generate:
+
+3 MCQ questions with 4 options
+2 Short answer questions.
+
+Return ONLY JSON in this format:
+
+{{
+ "mcq":[
+   {{
+     "question":"text",
+     "options":["A","B","C","D"]
+   }}
+ ],
+ "short":[
+   {{
+     "question":"text"
+   }}
+ ]
+}}
+
+Lecture:
+{text}
+"""
+
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    result = response.choices[0].message.content
+
+    print("AI Response")
+    print(result)
+
+    # remove ```json blocks if present
+    result = result.replace("```json", "").replace("```", "").strip()
+
+    data = json.loads(result)
 
     questions = []
 
-    for sentence in sentences:
+    # MCQ
+    for q in data.get("mcq", []):
+        questions.append({
+            "question": q["question"],
+            "type": "MCQ",
+            "options": q.get("options", [])
+        })
 
-        sentence = sentence.strip()
-
-        if len(sentence) > 40:
-
-            short_q = {
-                "question": f"Explain the following concept: {sentence}?",
-                "type": "Short Answer",
-                "difficulty": random.choice(["Easy","Medium","Hard"])
-            }
-
-            questions.append(short_q)
-
-            mcq_q = {
-                "question": f"Which concept is described below?\n{sentence}",
-                "type": "MCQ",
-                "difficulty": "Medium"
-            }
-
-            questions.append(mcq_q)
-
-        if len(questions) >= 10:
-            break
+    # Short
+    for q in data.get("short", []):
+        questions.append({
+            "question": q["question"],
+            "type": "Short Answer",
+            "options": []
+        })
 
     return questions

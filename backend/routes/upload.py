@@ -1,5 +1,7 @@
 from fastapi import APIRouter, UploadFile, File
 import os
+import json
+
 from services.pdf_processor import extract_text_from_pdf
 from services.question_generator import generate_questions
 
@@ -12,16 +14,20 @@ UPLOAD_FOLDER = "documents"
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+
 @router.post("/upload-lecture")
 async def upload_lecture(file: UploadFile = File(...)):
 
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
 
+    # Save uploaded file
     with open(file_path, "wb") as buffer:
         buffer.write(await file.read())
 
+    # Extract text
     lecture_text = extract_text_from_pdf(file_path)
 
+    # Generate questions using AI
     questions = generate_questions(lecture_text)
 
     db = SessionLocal()
@@ -31,14 +37,16 @@ async def upload_lecture(file: UploadFile = File(...)):
         question_record = Question(
             question_text=q["question"],
             question_type=q["type"],
-            difficulty=q.get("difficulty", "Medium")
+            options=json.dumps(q.get("options", []))  # store options as JSON
         )
 
         db.add(question_record)
 
     db.commit()
+
     print("Extracted text preview:")
     print(lecture_text[:500])
+
     return {
         "message": "File processed and questions stored",
         "questions_generated": len(questions)

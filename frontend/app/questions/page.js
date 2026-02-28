@@ -16,25 +16,51 @@ export default function QuestionsPage(){
 
   return(
 
-    <div style={{padding:40}}>
+    <div style={{padding:40,maxWidth:900,margin:"auto"}}>
 
-      <h2>Generated Questions</h2>
+      <h2 style={{marginBottom:30}}>Generated Questions</h2>
 
       {questions.length === 0 && <p>No questions generated yet</p>}
 
-      {questions.map(q => (
+      {questions.map((q,index) => (
+
         <div key={q.id} style={{
-          border:"1px solid #ccc",
-          padding:10,
-          marginBottom:10
+          border:"1px solid #ddd",
+          padding:20,
+          marginBottom:20,
+          borderRadius:8,
+          background:"#fafafa"
         }}>
-          <b>Type:</b> {q.type} <br/>
-          <b>Difficulty:</b> {q.difficulty}
-          <p>{q.question}</p>
+
+          <div style={{marginBottom:10}}>
+            <b>Type:</b> {q.type}
+          </div>
+
+          <div style={{fontSize:16,marginBottom:10}}>
+            <b>Q{index+1}.</b> {q.question}
+          </div>
+
+          {/* Show MCQ options */}
+          {q.type === "MCQ" && q.options && q.options.length > 0 && (
+
+            <div style={{marginLeft:20}}>
+
+              {q.options.map((opt,i)=>(
+                <div key={i} style={{marginBottom:5}}>
+                  {String.fromCharCode(65+i)}) {opt}
+                </div>
+              ))}
+
+            </div>
+
+          )}
+
         </div>
+
       ))}
 
     </div>
 
   )
+
 }

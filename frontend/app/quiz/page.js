@@ -43,33 +43,79 @@ export default function QuizPage(){
 
   return(
 
-    <div style={{padding:40}}>
+    <div style={{
+      padding:40,
+      maxWidth:900,
+      margin:"auto",
+      fontFamily:"Arial"
+    }}>
 
-      <h2>Create Quiz</h2>
+      <h1 style={{marginBottom:20}}>Create Quiz</h1>
 
       <input
-        placeholder="Quiz Title"
+        placeholder="Enter Quiz Title"
         onChange={(e)=>setTitle(e.target.value)}
+        style={{
+          padding:10,
+          width:"100%",
+          border:"1px solid #ccc",
+          borderRadius:6,
+          marginBottom:30
+        }}
       />
 
-      <br/><br/>
+      {questions.map((q,index)=>(
 
-      {questions.map(q=>(
-        <div key={q.id}>
+        <div
+          key={q.id}
+          style={{
+            border:"1px solid #ddd",
+            padding:20,
+            marginBottom:15,
+            borderRadius:8,
+            background:selected.includes(q.id) ? "#eef6ff" : "#fafafa",
+            transition:"0.2s"
+          }}
+        >
 
-          <input
-            type="checkbox"
-            onChange={()=>toggleQuestion(q.id)}
-          />
+          <label style={{cursor:"pointer"}}>
 
-          {q.question}
+            <input
+              type="checkbox"
+              checked={selected.includes(q.id)}
+              onChange={()=>toggleQuestion(q.id)}
+              style={{marginRight:10}}
+            />
+
+            <b>Q{index+1}.</b> {q.question}
+
+          </label>
+
+          <div style={{
+            marginTop:8,
+            fontSize:13,
+            color:"#666"
+          }}>
+            Type: {q.type}
+          </div>
 
         </div>
+
       ))}
 
-      <br/>
-
-      <button onClick={createQuiz}>
+      <button
+        onClick={createQuiz}
+        style={{
+          marginTop:20,
+          padding:"12px 20px",
+          background:"#2563eb",
+          color:"white",
+          border:"none",
+          borderRadius:6,
+          cursor:"pointer",
+          fontSize:16
+        }}
+      >
         Create Quiz
       </button>
 
