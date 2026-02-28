@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
 from services.pdf_generator import generate_quiz_pdf
 
 router = APIRouter()
@@ -6,9 +7,12 @@ router = APIRouter()
 @router.get("/export-quiz/{quiz_id}")
 def export_quiz(quiz_id: int):
 
-    file_name = generate_quiz_pdf(quiz_id)
+    pdf_buffer = generate_quiz_pdf(quiz_id)
 
-    return {
-        "message": "Quiz PDF generated",
-        "file": file_name
-    }
+    return StreamingResponse(
+        pdf_buffer,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename=quiz_{quiz_id}.pdf"
+        }
+    )

@@ -1,5 +1,6 @@
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from io import BytesIO
 from database import SessionLocal
 from models import Quiz, QuizQuestion, Question
 import json
@@ -15,9 +16,11 @@ def generate_quiz_pdf(quiz_id):
         QuizQuestion.quiz_id == quiz_id
     ).all()
 
-    file_name = f"quiz_{quiz_id}.pdf"
+    #file_name = f"quiz_{quiz_id}.pdf"
+    buffer = BytesIO()
 
-    c = canvas.Canvas(file_name, pagesize=letter)
+    #c = canvas.Canvas(file_name, pagesize=letter)
+    c = canvas.Canvas(buffer, pagesize=letter)
 
     y = 750
 
@@ -93,4 +96,5 @@ def generate_quiz_pdf(quiz_id):
 
     c.save()
 
-    return file_name
+    buffer.seek(0)
+    return buffer
