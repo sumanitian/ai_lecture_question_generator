@@ -3,13 +3,13 @@ from routes.upload import router as upload_router
 from routes.questions import router as question_router
 from routes.quiz import router as quiz_router
 from routes.export import router as export_router
+from routes.auth import router as auth_router
 
 from fastapi.middleware.cors import CORSMiddleware
 
-
-
 from database import engine
 from models import Base
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -23,6 +23,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router)
 app.include_router(upload_router)
 app.include_router(question_router)
 app.include_router(quiz_router)

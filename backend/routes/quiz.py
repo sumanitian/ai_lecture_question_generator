@@ -1,11 +1,13 @@
 from fastapi import APIRouter
+from utils.auth import get_current_user
+from fastapi import Depends
 from database import SessionLocal
 from models import Quiz, QuizQuestion
 
 router = APIRouter()
 
 @router.post("/create-quiz")
-def create_quiz(title: str, question_ids: str):
+def create_quiz(title: str, question_ids: str, user = Depends(get_current_user)):
 
     db = SessionLocal()
 

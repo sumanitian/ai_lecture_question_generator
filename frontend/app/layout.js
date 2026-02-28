@@ -1,8 +1,19 @@
+import { Toaster } from "react-hot-toast"
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body style={{fontFamily:"Arial", margin:0, padding:20}}>
+      <body>
+
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000
+          }}
+        />
+
         {children}
+
       </body>
     </html>
   )

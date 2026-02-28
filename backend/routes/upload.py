@@ -5,6 +5,9 @@ import json
 from services.pdf_processor import extract_text_from_pdf
 from services.question_generator import generate_questions
 
+from utils.auth import get_current_user
+from fastapi import Depends
+
 from database import SessionLocal
 from models import Question
 
@@ -16,7 +19,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
 @router.post("/upload-lecture")
-async def upload_lecture(file: UploadFile = File(...)):
+async def upload_lecture(user = Depends(get_current_user), file: UploadFile = File(...)):
 
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
 
