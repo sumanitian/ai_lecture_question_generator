@@ -1,91 +1,56 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useState } from "react"
 import toast from "react-hot-toast"
+import ProtectedRoute from "@/components/ProtectedRoute"
+import { apiFetch } from "@/lib/api"
 
-export default function UploadPage(){
+export default function UploadPage() {
 
-  const router = useRouter()
+  const [file, setFile] = useState(null)
 
-  const [file,setFile] = useState(null)
+  const upload = async () => {
 
-  useEffect(()=>{
-
-    const token = localStorage.getItem("token")
-
-    if(!token){
-      router.push("/login")
-    }
-
-  },[])
-
-  const uploadLecture = async () => {
-
-    if(!file){
-      toast.error("Please select a file")
+    if (!file) {
+      toast.error("Select file")
       return
     }
 
     const formData = new FormData()
     formData.append("file", file)
 
-    const res = await fetch(
+    const res = await apiFetch(
       "http://127.0.0.1:8000/upload-lecture",
-      {
-        method:"POST",
-        headers:{
-          Authorization:"Bearer " + localStorage.getItem("token")
-        },
-        body: formData
-      }
+      { method: "POST", body: formData }
     )
-
-    if(res.status === 401){
-
-      toast.error("Session expired. Login again")
-
-      localStorage.removeItem("token")
-
-      router.push("/login")
-
-      return
-    }
 
     const data = await res.json()
 
-    if(res.ok){
-
+    if (res.ok) {
       toast.success(data.questions_generated + " questions generated")
-
-      router.push("/questions")
-
-    }else{
-
+    } else {
       toast.error("Upload failed")
-
     }
 
   }
 
-  return(
+  return (
 
-    <div style={{padding:40}}>
+    <ProtectedRoute>
 
-      <h1>Upload Lecture</h1>
+      <div style={{ padding: 40 }}>
 
-      <input
-        type="file"
-        onChange={(e)=>setFile(e.target.files[0])}
-      />
+        <h1>Upload Lecture</h1>
 
-      <br/><br/>
+        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
 
-      <button onClick={uploadLecture}>
-        Upload
-      </button>
+        <br /><br />
 
-    </div>
+        <button onClick={upload}>Upload</button>
+
+      </div>
+
+    </ProtectedRoute>
 
   )
 

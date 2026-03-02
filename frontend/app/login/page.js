@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
+import { setToken } from "@/lib/auth"
 
 export default function LoginPage(){
 
@@ -10,46 +11,56 @@ export default function LoginPage(){
 
   const [email,setEmail] = useState("")
   const [password,setPassword] = useState("")
+  const [loading,setLoading] = useState(false)
 
   const login = async () => {
 
-    const res = await fetch("http://127.0.0.1:8000/login",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body: JSON.stringify({
-        email,
-        password
+    if(!email || !password){
+      toast.error("Enter email and password")
+      return
+    }
+
+    setLoading(true)
+
+    try{
+
+      const res = await fetch("http://127.0.0.1:8000/login",{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body: JSON.stringify({email,password})
       })
-    })
 
-    const data = await res.json()
+      const data = await res.json()
 
-    if(res.ok){
+      if(res.ok){
 
-      // store token
-      localStorage.setItem("token", data.access_token)
+        setToken(data.access_token)
 
-      toast.success("Login successful")
+        toast.success("Login successful")
 
-      router.push("/dashboard")
+        router.push("/dashboard")
 
-    }else{
+      }else{
 
-      toast.error("Invalid credentials")
+        toast.error("Invalid credentials")
+
+      }
+
+    }catch{
+
+      toast.error("Server error")
 
     }
+
+    setLoading(false)
 
   }
 
   return(
 
-    <div style={{
-      padding:40,
-      maxWidth:400,
-      margin:"auto"
-    }}>
+    <div style={{padding:40,maxWidth:400,margin:"auto"}}>
 
       <h2>Login</h2>
 
@@ -71,17 +82,17 @@ export default function LoginPage(){
       <br/><br/>
 
       <button
+        disabled={loading}
         onClick={login}
         style={{
           width:"100%",
           padding:10,
           background:"#2563eb",
           color:"white",
-          border:"none",
-          cursor:"pointer"
+          border:"none"
         }}
       >
-        Login
+        {loading ? "Logging in..." : "Login"}
       </button>
 
     </div>

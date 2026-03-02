@@ -1,125 +1,72 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
+import ProtectedRoute from "@/components/ProtectedRoute"
+import { apiFetch } from "@/lib/api"
 
-export default function QuestionsPage(){
+export default function QuestionsPage() {
 
-  const router = useRouter()
+  const [questions, setQuestions] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const [questions,setQuestions] = useState([])
-  const [loading,setLoading] = useState(true)
+  useEffect(() => {
 
-  useEffect(()=>{
+    const load = async () => {
 
-    const token = localStorage.getItem("token")
+      try {
 
-    if(!token){
-      router.push("/login")
-      return
-    }
+        const res = await apiFetch("http://127.0.0.1:8000/questions")
 
-    fetch(
-      "http://127.0.0.1:8000/questions",
-      {
-        headers:{
-          Authorization:"Bearer " + token
-        }
-      }
-    )
-      .then(res=>{
+        const data = await res.json()
 
-        if(res.status === 401){
+        setQuestions(data)
 
-          localStorage.removeItem("token")
-          router.push("/login")
-
-          return
-        }
-
-        return res.json()
-
-      })
-      .then(data=>{
-
-        if(Array.isArray(data)){
-          setQuestions(data)
-        }
-
-        setLoading(false)
-
-      })
-      .catch(()=>{
+      } catch {
 
         toast.error("Failed to load questions")
-        setLoading(false)
 
-      })
+      }
 
-  },[])
+      setLoading(false)
 
-  if(loading){
-    return <div style={{padding:40}}>Loading questions...</div>
+    }
+
+    load()
+
+  }, [])
+
+  if (loading) {
+    return <div style={{ padding: 40 }}>Loading...</div>
   }
 
-  return(
+  return (
 
-    <div style={{
-      padding:40,
-      maxWidth:900,
-      margin:"auto",
-      fontFamily:"Arial"
-    }}>
+    <ProtectedRoute>
 
-      <h2 style={{marginBottom:20}}>Generated Questions</h2>
+      <div style={{ padding: 40, maxWidth: 900, margin: "auto" }}>
 
-      {questions.length === 0 && (
-        <p>No questions available</p>
-      )}
+        <h2>Generated Questions</h2>
 
-      {questions.map((q,index)=>(
+        {questions.map((q, index) => (
 
-        <div
-          key={q.id}
-          style={{
-            border:"1px solid #ddd",
-            padding:20,
-            marginBottom:15,
-            borderRadius:8,
-            background:"#fafafa"
-          }}
-        >
+          <div key={q.id} style={{ border: "1px solid #ddd", padding: 20, marginBottom: 15 }}>
 
-          <div style={{marginBottom:6,fontSize:14,color:"#666"}}>
-            Type: {q.type}
+            <b>Q{index + 1}.</b> {q.question}
+
+            <div style={{ fontSize: 13, color: "#666" }}>{q.type}</div>
+
+            {q.type === "MCQ" && q.options?.map((opt, i) => (
+              <div key={i}>{String.fromCharCode(65 + i)}) {opt}</div>
+            ))}
+
           </div>
 
-          <p style={{fontSize:16}}>
-            <b>Q{index+1}.</b> {q.question}
-          </p>
+        ))}
 
-          {/* SHOW MCQ OPTIONS */}
+      </div>
 
-          {q.type === "MCQ" && q.options && q.options.length > 0 && (
-
-            <div style={{marginTop:10,paddingLeft:20}}>
-
-              {q.options.map((opt,i)=>(
-                <div key={i} style={{marginTop:4}}>
-                  {String.fromCharCode(65+i)}) {opt}
-                </div>
-              ))}
-
-            </div>
-
-          )}
-
-        </div>
-
-      ))}
-
-    </div>
+    </ProtectedRoute>
 
   )
 
